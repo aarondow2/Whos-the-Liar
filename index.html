@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Find the Liar Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+    .avatar {
+      width: 100px;
+      height: 100px;
+      margin: 10px;
+      cursor: pointer;
+    }
+    .question {
+      font-size: 20px;
+      margin: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Find the Liar Game</h1>
+  <div id="avatars"></div>
+  <div id="question" class="question"></div>
+
+  <script>
+    const avatarCount = 14;
+    let questions = [];
+    let liarIndex = -1;
+
+    // Dynamically create avatar images
+    const avatarContainer = document.getElementById("avatars");
+    for (let i = 1; i <= avatarCount; i++) {
+      const img = document.createElement("img");
+      img.src = `avatar${i}.png`;
+      img.className = "avatar";
+      img.onclick = () => selectAvatar(i);
+      avatarContainer.appendChild(img);
+    }
+
+    // Load questions from external file
+    fetch("question_pairs.txt")
+      .then(response => response.text())
+      .then(data => {
+        questions = data.trim().split("\n").map(line => line.split("|").map(q => q.trim()));
+      })
+      .catch(error => {
+        document.getElementById("question").innerText = "Failed to load questions.";
+        console.error("Error loading questions:", error);
+      });
+
+    function selectAvatar(index) {
+      liarIndex = index;
+      assignQuestions();
+    }
+
+    function assignQuestions() {
+      if (questions.length === 0) {
+        document.getElementById("question").innerText = "Questions not loaded yet.";
+        return;
+      }
+
+      const [groupQ, liarQ] = questions[Math.floor(Math.random() * questions.length)];
+      document.getElementById("question").innerHTML = `
+        <p><strong>Group Question:</strong> ${groupQ}</p>
+        <p><strong>Liar Question:</strong> ${liarQ}</p>
+        <p><strong>Liar is Avatar ${liarIndex}</strong></p>
+      `;
+    }
+  </script>
+</body>
+</html>
